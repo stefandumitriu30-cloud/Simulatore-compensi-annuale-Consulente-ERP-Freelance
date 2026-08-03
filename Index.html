@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#2b4fd8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Simulatore compensi">
+<title>Simulatore compensi annuale · consulente ERP freelance</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  body {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #faf8f4;
+    color: #1c1a17;
+  }
+  .sans { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px 60px; }
+  input[type=text], input[type=number], input[type=date], select {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 13px; padding: 7px 10px; border: 1px solid #d8d2c4; border-radius: 6px;
+    background: #fff; color: #1c1a17; width: 100%;
+  }
+  input:focus, select:focus { outline: none; border-color: #2b4fd8; }
+  label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #8a7f68; display: block; margin-bottom: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .card { background: #fff; border: 1px solid #e6e0d2; border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; }
+  .btn { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #d8d2c4; background: #fff; cursor: pointer; color: #4a4230; }
+  .btn:hover { background: #eaf1fd; }
+  .btn.danger { color: #a03d3d; border-color: #e0c4c4; }
+  .btn.danger:hover { background: #faf0f0; }
+  .lang-btn { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #d8d2c4; background: #fff; cursor: pointer; color: #8a7f68; }
+  .lang-btn.active { background: #2b4fd8; color: #fff; border-color: #2b4fd8; }
+  .daybtn { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 12px; padding: 8px 0; border-radius: 6px; border: 1px solid #d8d2c4; background: #fff; cursor: pointer; text-align: center; width: 100%; }
+  .daybtn.active { background: #2b4fd8; color: #fff; border-color: #2b4fd8; }
+  table { width: 100%; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 12.5px; }
+  .monthly-table { min-width: 780px; }
+  th { text-align: right; font-weight: 600; padding: 8px 6px; border-bottom: 2px solid #e6e0d2; color: #6b6250; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  th:first-child { text-align: left; }
+  td { text-align: right; padding: 7px 6px; border-bottom: 1px solid #f0ebdf; }
+  td:first-child { text-align: left; font-weight: 600; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid4b { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 16px; }
+  .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .metric { padding: 18px 20px; border-radius: 10px; border: 1px solid #e6e0d2; background: #fff; }
+  .metric.hi { background: #2b4fd8; border-color: #2b4fd8; }
+  .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: #8a7f68; margin-bottom: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .metric.hi .metric-label { color: #dbe8fb; }
+  .metric-value { font-size: 24px; }
+  .metric.hi .metric-value { color: #fff; }
+  .metric-sub { font-size: 11.5px; color: #a39a86; margin-top: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .metric.hi .metric-sub { color: #dbe8fb; }
+  h1 { font-size: 30px; margin: 0; font-weight: 400; }
+  h2 { font-size: 18px; font-weight: 400; margin: 0; }
+  h3 { font-size: 16px; font-weight: 400; margin: 0 0 14px; }
+  .expense-row { display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .occasional-row { display: grid; grid-template-columns: 1.6fr 1fr 1fr auto; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .project-card { background: #fff; border: 1px solid #e6e0d2; border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+  .project-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #eaf1fd; border-bottom: 1px solid #e6e0d2; }
+  .project-body { padding: 18px 20px; }
+  .project-swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: middle; }
+  .year-badge { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #2b4fd8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .topbar { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 16px; }
+
+  @media (max-width: 800px) {
+    .grid4, .grid4b, .summary { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ---- Mobile / smartphone breakpoint ---- */
+  @media (max-width: 640px) {
+    .wrap { padding: 16px 12px 48px; }
+    .mobile-scroll-hint { display: block !important; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 16px; }
+    h3 { font-size: 14px; }
+    .card { padding: 14px 14px; border-radius: 10px; }
+    .grid4, .grid4b, .summary { grid-template-columns: 1fr; gap: 10px; }
+    .grid4 > div[style*="grid-column: span 2"] { grid-column: span 1; }
+    input[type=text], input[type=number], input[type=date], select {
+      font-size: 16px; /* prevents iOS auto-zoom on focus */
+      padding: 10px 12px;
+    }
+    .btn, .lang-btn { padding: 9px 14px; font-size: 13px; }
+    .daybtn { padding: 10px 0; font-size: 13px; }
+    .metric { padding: 14px 16px; }
+    .metric-value { font-size: 20px; }
+    .expense-row { grid-template-columns: 1fr; gap: 6px; }
+    .expense-row .exp-remove { justify-self: start; }
+    .occasional-row { grid-template-columns: 1fr; gap: 6px; }
+    .occasional-row .occ-remove { justify-self: start; }
+    .project-header { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
+    .project-header input.proj-name { width: 100% !important; }
+    .project-body { padding: 14px 14px; }
+    table { font-size: 11px; }
+    th, td { padding: 6px 4px; }
+    .topbar { margin-bottom: 12px; }
+    /* Make the monthly projection table scroll smoothly with a visible hint */
+    .card > div[style*="overflow-x"] {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  @media (max-width: 420px) {
+    h1 { font-size: 19px; }
+    .metric-value { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <button class="lang-btn active" id="langIt" type="button">IT</button>
+    <button class="lang-btn" id="langEn" type="button">EN</button>
+  </div>
+
+  <div style="margin-bottom: 24px;">
+    <div class="sans year-badge" style="margin-bottom: 6px;" data-i18n="eyebrow"></div>
+    <h1 data-i18n="title"></h1>
+    <p class="sans" style="color: #6b6250; font-size: 14px; margin-top: 8px; max-width: 700px;" data-i18n="subtitle"></p>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="companyTitle"></h3>
+    <div class="grid4">
+      <div style="grid-column: span 2;">
+        <label data-i18n="companyName"></label>
+        <input type="text" id="companyName" value="">
+      </div>
+      <div>
+        <label data-i18n="vatLabel"></label>
+        <input type="text" id="vatNumber" value="">
+      </div>
+      <div>
+        <label data-i18n="sectorLabel"></label>
+        <input type="text" id="sectorField" value="">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid4" style="margin-bottom: 18px;">
+      <div>
+        <label data-i18n="fiscalYear"></label>
+        <input type="number" id="fiscalYear" value="">
+      </div>
+      <div>
+        <label data-i18n="coeffLabel"></label>
+        <input type="number" id="coeff" value="">
+      </div>
+      <div>
+        <label data-i18n="inpsLabel"></label>
+        <input type="number" step="0.01" id="inps" value="">
+      </div>
+      <div style="display: flex; align-items: flex-end;">
+        <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 8px;">
+          <input type="checkbox" id="under5y" style="width: 16px; height: 16px;">
+          <label for="under5y" style="margin: 0; text-transform: none; letter-spacing: 0; font-size: 13px; color: #1c1a17;" data-i18n="under5yLabel"></label>
+        </div>
+      </div>
+    </div>
+    <p class="sans" style="font-size: 12px; color: #a39a86; margin: 0;" data-i18n="fiscalNote"></p>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <h2 data-i18n="projectsTitle"></h2>
+    <button class="btn" id="addProjectBtn" type="button" data-i18n="addProject"></button>
+  </div>
+  <div id="projectsList"></div>
+
+  <h3 data-i18n="revenueByYearTitle" style="margin: 0 0 10px;"></h3>
+  <div class="summary" id="revenueByYearCards" style="margin-top: 0;"></div>
+
+  <div class="summary" id="summaryCards" style="margin-top: 8px;"></div>
+
+  <div class="card">
+    <h3 data-i18n="taxDetailTitle"></h3>
+    <table id="taxTable"></table>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="deadlinesTitle"></h3>
+    <p class="sans" style="font-size: 12.5px; color: #6b6250; margin: 0 0 14px;" data-i18n="deadlinesNote"></p>
+    <table id="deadlinesTable"></table>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+      <h3 style="margin:0;" data-i18n="fixedExpensesTitle"></h3>
+      <button class="btn" id="addExpenseBtn" type="button" data-i18n="addItem"></button>
+    </div>
+    <div id="expensesList"></div>
+    <div class="sans" style="margin-top: 12px; font-size: 13px; color: #6b6250; text-align: right;">
+      <span data-i18n="totalFixedExpenses"></span> <strong id="expensesTotal" style="color: #1c1a17;"></strong> <span data-i18n="perMonth"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+      <h3 style="margin:0;" data-i18n="occasionalTitle"></h3>
+      <button class="btn" id="addOccasionalBtn" type="button" data-i18n="addItem"></button>
+    </div>
+    <p class="sans" style="font-size: 12.5px; color: #6b6250; margin: 0 0 14px;" data-i18n="occasionalNote"></p>
+    <div id="occasionalList"></div>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="monthlyProjectionTitle"></h3>
+    <p class="sans mobile-scroll-hint" style="display:none; font-size: 11px; color: #a39a86; margin: 0 0 8px;" data-i18n="scrollHint"></p>
+    <div style="overflow-x: auto;">
+      <table class="monthly-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;" data-i18n="thMonth"></th>
+            <th style="text-align:left;" data-i18n="thActiveProjects"></th>
+            <th data-i18n="thBillableDays"></th>
+            <th data-i18n="thGross"></th>
+            <th data-i18n="thTravel"></th>
+            <th data-i18n="thNetAfterTax"></th>
+            <th data-i18n="thNetAfterTravel"></th>
+            <th data-i18n="thOccasional"></th>
+            <th data-i18n="thNetEndOfMonth"></th>
+          </tr>
+        </thead>
+        <tbody id="monthlyBody"></tbody>
+      </table>
+    </div>
+    <p class="sans" style="font-size: 11.5px; color: #a39a86; margin-top: 14px;" data-i18n="monthlyNote"></p>
+  </div>
+
+  <div class="sans" style="text-align: center; font-size: 11.5px; color: #a3b4dd; padding: 20px 0 4px;">
+    © 2026 Vantage Finance & Tech · P. IVA 1344953001616
+  </div>
+
+</div>
+
+<script>
+const I18N = {
+  it: {
+    eyebrow: 'Simulatore compensi annuale · consulente ERP freelance',
+    title: 'Anno fiscale, progetti e netto mensile',
+    subtitle: "Aggiungi uno o più progetti nel corso dell'anno: le tasse si calcolano sul reddito totale annuo, la proiezione mensile mostra il contributo di ciascun progetto.",
+    companyTitle: 'Dati ditta individuale',
+    companyName: 'Ragione sociale / titolare',
+    vatLabel: 'Partita IVA',
+    sectorLabel: 'Settore',
+    fiscalYear: 'Anno fiscale',
+    coeffLabel: 'Coefficiente redditività (%)',
+    inpsLabel: 'INPS gestione separata (%)',
+    under5yLabel: 'Attività under 5 anni (5% invece di 15%)',
+    fiscalNote: 'Questi parametri fiscali si applicano a tutti i progetti dell\'anno, come previsto dal regime forfettario (calcolo su reddito complessivo, non per singolo cliente).',
+    revenueByYearTitle: 'Fatturato per anno fiscale',
+    noProjectsYet: 'Nessun progetto ancora aggiunto.',
+    projectsTitle: "Progetti dell'anno",
+    addProject: '+ Aggiungi progetto',
+    removeProject: 'Rimuovi progetto',
+    newProject: 'Nuovo progetto',
+    erpLabel: 'Sistema ERP',
+    erpPlaceholder: 'Es. SAP S/4HANA, Oracle Cloud ERP...',
+    rateLabel: 'Tariffa giornaliera (€)',
+    startLabel: 'Inizio progetto',
+    endLabel: 'Fine progetto',
+    onSiteDaysLabel: 'Giorni on-site (trasferta)',
+    cityLabel: 'Sede on-site',
+    cityPlaceholder: 'Es. Praga, Milano, Remoto...',
+    travelCostLabel: 'Costo trasferta / gg on-site (€)',
+    taxDetailTitle: 'Dettaglio fiscale annuale (regime forfettario)',
+    deadlinesTitle: 'Scadenze fiscali: acconti e saldo',
+    deadlinesNote: 'Stima basata sul metodo storico (acconto pari al 100% delle imposte dell\'anno corrente, ripartito 40% a giugno e 60% a novembre, oltre al saldo dell\'anno corrente a giugno).',
+    deadlineJuneRow: 'Saldo anno corrente (giugno)',
+    deadlineJuneAdvanceRow: 'Acconto anno successivo 40% (giugno)',
+    deadlineJuneTotalRow: 'Totale dovuto a giugno',
+    deadlineNovemberRow: 'Acconto anno successivo 60% (novembre)',
+    deadlineTotalYearRow: 'Totale versato nell\'anno',
+    fixedExpensesTitle: 'Spese personali fisse mensili',
+    addItem: '+ Aggiungi voce',
+    totalFixedExpenses: 'Totale spese fisse:',
+    perMonth: '/ mese',
+    occasionalTitle: 'Spese occasionali',
+    occasionalNote: 'Spese una tantum (es. corso, attrezzatura, viaggio extra) da assegnare a un mese specifico dell\'anno.',
+    occasionalEmpty: 'Nessuna spesa occasionale aggiunta.',
+    monthlyProjectionTitle: 'Proiezione mensile (tutti i progetti)',
+    thMonth: 'Mese',
+    thActiveProjects: 'Progetti attivi',
+    thBillableDays: 'Gg fatt.',
+    thGross: 'Lordo',
+    thTravel: 'Trasferta',
+    thNetAfterTax: 'Netto post-tasse',
+    thNetAfterTravel: 'Netto post-trasferta',
+    thOccasional: 'Spese occ.',
+    thNetEndOfMonth: 'Netto a fine mese',
+    monthlyNote: 'Nota: le stime fiscali sono indicative e semplificate, calcolate sul reddito complessivo dell\'anno fiscale ripartito pro-rata sui giorni fatturabili di ciascun mese. Verificare sempre con il proprio commercialista, in particolare per acconti di novembre e saldo di giugno.',
+    scrollHint: '← Scorri orizzontalmente per vedere tutte le colonne →',
+    metricGrossRevenue: 'Fatturato lordo totale',
+    metricGrossSub: (days, months) => `${days} gg fatturabili · ${months} mesi attivi`,
+    metricTaxes: 'Tasse + INPS totali',
+    metricTaxesSub: (pct) => `${pct}% sul lordo`,
+    metricNetTotal: 'Netto totale (post tasse)',
+    metricNetTotalSub: 'prima delle spese trasferta',
+    metricAvgMonthly: 'Netto medio mensile',
+    metricAvgMonthlySub: 'dopo trasferte e spese fisse',
+    taxRowGross: 'Fatturato lordo (tutti i progetti)',
+    taxRowTaxable: (coeff) => `Reddito imponibile (coeff. ${coeff}%)`,
+    taxRowInps: (rate) => `INPS gestione separata (${rate}%)`,
+    taxRowSubstitute: (rate) => `Imposta sostitutiva (${rate}%)`,
+    taxRowNetAfterTax: 'Netto post-tasse',
+    taxRowTravel: 'Costi trasferta (tutti i progetti)',
+    taxRowNetCash: 'Netto di cassa (dopo trasferte)',
+    monthlyTotalLabel: 'Totale',
+    days: ['Lun', 'Mar', 'Mer', 'Gio', 'Ven'],
+    months: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'],
+  },
+  en: {
+    eyebrow: 'Annual compensation simulator · freelance ERP consultant',
+    title: 'Fiscal year, projects and monthly net income',
+    subtitle: "Add one or more projects across the year: taxes are calculated on total annual income, the monthly projection shows each project's contribution.",
+    companyTitle: 'Sole proprietorship details',
+    companyName: 'Business name / owner',
+    vatLabel: 'VAT number',
+    sectorLabel: 'Sector',
+    fiscalYear: 'Fiscal year',
+    coeffLabel: 'Profitability coefficient (%)',
+    inpsLabel: 'INPS separate pension scheme (%)',
+    under5yLabel: 'Business under 5 years old (5% instead of 15%)',
+    fiscalNote: "These tax parameters apply to all projects in the year, as required by the flat-tax regime (calculated on total income, not per client).",
+    projectsTitle: 'Projects this year',
+    addProject: '+ Add project',
+    removeProject: 'Remove project',
+    newProject: 'New project',
+    erpLabel: 'ERP system',
+    erpPlaceholder: 'e.g. SAP S/4HANA, Oracle Cloud ERP...',
+    rateLabel: 'Daily rate (€)',
+    startLabel: 'Project start',
+    endLabel: 'Project end',
+    onSiteDaysLabel: 'On-site days (travel)',
+    cityLabel: 'On-site location',
+    cityPlaceholder: 'e.g. Prague, Milan, Remote...',
+    travelCostLabel: 'Travel cost / on-site day (€)',
+    taxDetailTitle: 'Annual tax breakdown (flat-tax regime)',
+    deadlinesTitle: 'Tax deadlines: advance payments and balance',
+    deadlinesNote: 'Estimate based on the historical method (advance payment equal to 100% of current-year taxes, split 40% in June and 60% in November, plus the current-year balance due in June).',
+    deadlineJuneRow: 'Current year balance (June)',
+    deadlineJuneAdvanceRow: 'Next year advance 40% (June)',
+    deadlineJuneTotalRow: 'Total due in June',
+    deadlineNovemberRow: 'Next year advance 60% (November)',
+    deadlineTotalYearRow: 'Total paid in the year',
+    fixedExpensesTitle: 'Fixed personal expenses (monthly)',
+    addItem: '+ Add item',
+    totalFixedExpenses: 'Total fixed expenses:',
+    perMonth: '/ month',
+    occasionalTitle: 'One-off expenses',
+    occasionalNote: 'One-time expenses (e.g. training, equipment, extra travel) assigned to a specific month of the year.',
+    occasionalEmpty: 'No one-off expenses added.',
+    monthlyProjectionTitle: 'Monthly projection (all projects)',
+    thMonth: 'Month',
+    thActiveProjects: 'Active projects',
+    thBillableDays: 'Billable days',
+    thGross: 'Gross',
+    thTravel: 'Travel',
+    thNetAfterTax: 'Net after tax',
+    thNetAfterTravel: 'Net after travel',
+    thOccasional: 'One-off exp.',
+    thNetEndOfMonth: 'Net at month end',
+    monthlyNote: "Note: tax estimates are indicative and simplified, calculated on total fiscal-year income allocated pro-rata across each month's billable days. Always check with your accountant, particularly for the November advance payment and June balance.",
+    scrollHint: '← Scroll horizontally to see all columns →',
+    revenueByYearTitle: 'Revenue by fiscal year',
+    noProjectsYet: 'No projects added yet.',
+    metricGrossRevenue: 'Total gross revenue',
+    metricGrossSub: (days, months) => `${days} billable days · ${months} active months`,
+    metricTaxes: 'Total taxes + INPS',
+    metricTaxesSub: (pct) => `${pct}% of gross`,
+    metricNetTotal: 'Total net (after tax)',
+    metricNetTotalSub: 'before travel expenses',
+    metricAvgMonthly: 'Average monthly net',
+    metricAvgMonthlySub: 'after travel and fixed expenses',
+    taxRowGross: 'Gross revenue (all projects)',
+    taxRowTaxable: (coeff) => `Taxable income (coeff. ${coeff}%)`,
+    taxRowInps: (rate) => `INPS separate scheme (${rate}%)`,
+    taxRowSubstitute: (rate) => `Substitute tax (${rate}%)`,
+    taxRowNetAfterTax: 'Net after tax',
+    taxRowTravel: 'Travel costs (all projects)',
+    taxRowNetCash: 'Net cash (after travel)',
+    monthlyTotalLabel: 'Total',
+    days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  },
+};
+
+let currentLang = 'it';
+
+const PROJECT_COLORS = ['#2b4fd8', '#5aa9ec', '#1a3a9e', '#7cc4f2', '#0f2e8f', '#4a7fe0'];
+
+let projects = [];
+
+let fixedExpenses = [];
+
+let occasionalExpenses = [];
+
+const holidays = new Set([
+  '2026-01-01','2026-01-06','2026-04-06','2026-04-25','2026-05-01','2026-06-02',
+  '2026-08-15','2026-11-01','2026-12-08','2026-12-25','2026-12-26',
+  '2027-01-01','2027-01-06','2027-03-29','2027-04-25','2027-05-01','2027-06-02',
+  '2027-08-15','2027-11-01','2027-12-08','2027-12-25','2027-12-26'
+]);
+
+function t(key) {
+  return I18N[currentLang][key];
+}
+
+function fmt(n) {
+  const locale = currentLang === 'it' ? 'it-IT' : 'en-IE';
+  return n.toLocaleString(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+}
+
+function daysBetween(start, end) {
+  const days = [];
+  let d = new Date(start);
+  const endD = new Date(end);
+  while (d <= endD) {
+    days.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return days;
+}
+
+function monthKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function monthLabel(key) {
+  const [y, m] = key.split('-');
+  return I18N[currentLang].months[parseInt(m, 10) - 1] + ' ' + y.slice(2);
+}
+
+function projectColor(index) {
+  return PROJECT_COLORS[index % PROJECT_COLORS.length];
+}
+
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const key = el.getAttribute('data-i18n');
+    const val = I18N[currentLang][key];
+    if (typeof val === 'string') el.textContent = val;
+  });
+}
+
+function calculate() {
+  const coeff = Number(document.getElementById('coeff').value) || 0;
+  const inpsRate = Number(document.getElementById('inps').value) || 0;
+  const under5y = document.getElementById('under5y').checked;
+
+  const months = {};
+
+  projects.forEach((proj) => {
+    if (!proj.startDate || !proj.endDate) return;
+    const days = daysBetween(proj.startDate, proj.endDate);
+    days.forEach((d) => {
+      const iso = d.toISOString().slice(0, 10);
+      const dow = d.getDay() === 0 ? 7 : d.getDay();
+      const key = monthKey(d);
+      if (!months[key]) months[key] = { billableDays: 0, revenue: 0, travelCost: 0, byProject: {} };
+      if (!months[key].byProject[proj.id]) {
+        months[key].byProject[proj.id] = { billableDays: 0, revenue: 0, travelCost: 0, onSiteDays: 0 };
+      }
+      const isWeekend = dow === 6 || dow === 7;
+      const isHoliday = holidays.has(iso);
+      if (!isWeekend && !isHoliday) {
+        const rate = Number(proj.rate || 0);
+        months[key].billableDays += 1;
+        months[key].revenue += rate;
+        months[key].byProject[proj.id].billableDays += 1;
+        months[key].byProject[proj.id].revenue += rate;
+        if ((proj.onSiteDays || []).includes(dow)) {
+          months[key].byProject[proj.id].onSiteDays += 1;
+        }
+      }
+    });
+  });
+
+  Object.values(months).forEach((m) => {
+    let monthTravel = 0;
+    Object.entries(m.byProject).forEach(([projId, pdata]) => {
+      const proj = projects.find((p) => String(p.id) === String(projId));
+      if (!proj) return;
+      const dailyTravelCost = Number(proj.travelCostPerDay || 0);
+      pdata.travelCost = pdata.onSiteDays * dailyTravelCost;
+      monthTravel += pdata.travelCost;
+    });
+    m.travelCost = monthTravel;
+  });
+
+  const totalBillableDays = Object.values(months).reduce((s, m) => s + m.billableDays, 0);
+  const totalRevenue = Object.values(months).reduce((s, m) => s + m.revenue, 0);
+  const totalTravelCost = Object.values(months).reduce((s, m) => s + m.travelCost, 0);
+
+  const coeffF = coeff / 100;
+  const taxableIncome = totalRevenue * coeffF;
+  const inps = taxableIncome * (inpsRate / 100);
+  const imposta = under5y ? 0.05 : 0.15;
+  const substituteTax = (taxableIncome - inps) * imposta;
+  const totalTaxes = inps + substituteTax;
+  const netTotal = totalRevenue - totalTaxes;
+  const netCashAfterTravel = netTotal - totalTravelCost;
+
+  const monthKeys = Object.keys(months).sort();
+  const avgTaxRate = totalRevenue > 0 ? totalTaxes / totalRevenue : 0;
+  const monthlyExpensesTotal = fixedExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+
+  const monthlyBreakdown = monthKeys.map((k) => {
+    const m = months[k];
+    const netRevenue = m.revenue * (1 - avgTaxRate);
+    const netAfterTravel = netRevenue - m.travelCost;
+    const occasionalForMonth = occasionalExpenses
+      .filter((o) => o.month === k)
+      .reduce((s, o) => s + Number(o.amount || 0), 0);
+    const netAfterExpenses = netAfterTravel - monthlyExpensesTotal - occasionalForMonth;
+    const activeProjectIds = Object.keys(m.byProject).filter((pid) => m.byProject[pid].billableDays > 0);
+    const activeProjectNames = activeProjectIds.map((pid) => {
+      const p = projects.find((x) => String(x.id) === String(pid));
+      return p ? p.name : '—';
+    });
+    return {
+      key: k, label: monthLabel(k),
+      billableDays: m.billableDays,
+      revenue: m.revenue, travelCost: m.travelCost,
+      netRevenue, netAfterTravel, occasionalForMonth, netAfterExpenses,
+      activeProjectNames,
+    };
+  });
+
+  const avgMonthlyNet = monthlyBreakdown.length > 0
+    ? monthlyBreakdown.reduce((s, m) => s + m.netAfterExpenses, 0) / monthlyBreakdown.length
+    : 0;
+
+  return {
+    totalBillableDays, totalRevenue, taxableIncome, inps, substituteTax, totalTaxes,
+    netTotal, totalTravelCost, netCashAfterTravel, monthlyBreakdown, monthKeys,
+    monthlyExpensesTotal, avgMonthlyNet, months: monthKeys.length, coeff, inpsRate, under5y
+  };
+}
+
+function renderProjects() {
+  document.getElementById('projectsList').innerHTML = projects.map((proj, idx) => {
+    const dayVals = [1, 2, 3, 4, 5];
+    const dayButtons = dayVals.map((v, i) => `
+      <button class="daybtn ${(proj.onSiteDays || []).includes(v) ? 'active' : ''}" data-day="${v}" type="button">${I18N[currentLang].days[i]}</button>
+    `).join('');
+    return `
+      <div class="project-card" data-project-id="${proj.id}">
+        <div class="project-header">
+          <div style="display: flex; align-items: center;">
+            <span class="project-swatch" style="background: ${projectColor(idx)};"></span>
+            <input type="text" class="proj-name sans" value="${proj.name || ''}" placeholder="${t('newProject')}" style="font-size: 14px; font-weight: 500; border: none; background: transparent; padding: 4px 6px; width: 220px;">
+          </div>
+          <button class="btn danger proj-remove" type="button" ${projects.length <= 1 ? 'disabled' : ''}>${t('removeProject')}</button>
+        </div>
+        <div class="project-body">
+          <div class="grid4" style="margin-bottom: 16px;">
+            <div>
+              <label>${t('erpLabel')}</label>
+              <input type="text" class="proj-erp" value="${proj.erp || ''}" placeholder="${t('erpPlaceholder')}">
+            </div>
+            <div>
+              <label>${t('rateLabel')}</label>
+              <input type="number" class="proj-rate" value="${proj.rate != null ? proj.rate : ''}" placeholder="0">
+            </div>
+            <div>
+              <label>${t('startLabel')}</label>
+              <input type="date" class="proj-start" value="${proj.startDate || ''}">
+            </div>
+            <div>
+              <label>${t('endLabel')}</label>
+              <input type="date" class="proj-end" value="${proj.endDate || ''}">
+            </div>
+          </div>
+          <div class="grid4b">
+            <div>
+              <label>${t('onSiteDaysLabel')}</label>
+              <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;">
+                ${dayButtons}
+              </div>
+            </div>
+            <div>
+              <label>${t('cityLabel')}</label>
+              <input type="text" class="proj-city" value="${proj.city || ''}" placeholder="${t('cityPlaceholder')}">
+            </div>
+            <div>
+              <label>${t('travelCostLabel')}</label>
+              <input type="number" class="proj-travel-cost" value="${proj.travelCostPerDay != null ? proj.travelCostPerDay : ''}" placeholder="0">
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  attachProjectListeners();
+}
+
+function attachProjectListeners() {
+  document.querySelectorAll('.project-card').forEach((card) => {
+    const id = Number(card.dataset.projectId);
+    const proj = projects.find((p) => p.id === id);
+    if (!proj) return;
+
+    card.querySelector('.proj-name').addEventListener('input', (e) => {
+      proj.name = e.target.value;
+      recalcOnly();
+    });
+    card.querySelector('.proj-erp').addEventListener('input', (e) => {
+      proj.erp = e.target.value;
+      recalcOnly();
+    });
+    card.querySelector('.proj-rate').addEventListener('input', (e) => {
+      proj.rate = e.target.value === '' ? null : Number(e.target.value);
+      recalcOnly();
+    });
+    card.querySelector('.proj-start').addEventListener('change', (e) => {
+      proj.startDate = e.target.value;
+      renderOccasionalList();
+      recalcOnly();
+    });
+    card.querySelector('.proj-end').addEventListener('change', (e) => {
+      proj.endDate = e.target.value;
+      renderOccasionalList();
+      recalcOnly();
+    });
+    card.querySelector('.proj-city').addEventListener('input', (e) => {
+      proj.city = e.target.value;
+      recalcOnly();
+    });
+    card.querySelector('.proj-travel-cost').addEventListener('input', (e) => {
+      proj.travelCostPerDay = e.target.value === '' ? null : Number(e.target.value);
+      recalcOnly();
+    });
+    card.querySelectorAll('.daybtn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const day = Number(btn.dataset.day);
+        proj.onSiteDays = proj.onSiteDays || [];
+        if (proj.onSiteDays.includes(day)) {
+          proj.onSiteDays = proj.onSiteDays.filter((d) => d !== day);
+          btn.classList.remove('active');
+        } else {
+          proj.onSiteDays.push(day);
+          proj.onSiteDays.sort();
+          btn.classList.add('active');
+        }
+        recalcOnly();
+      });
+    });
+    const removeBtn = card.querySelector('.proj-remove');
+    if (removeBtn && projects.length > 1) {
+      removeBtn.addEventListener('click', () => {
+        projects = projects.filter((p) => p.id !== id);
+        renderProjects();
+        renderOccasionalList();
+        recalcOnly();
+      });
+    }
+  });
+}
+
+function recalcOnly() {
+  const calc = calculate();
+  const L = I18N[currentLang];
+
+  document.getElementById('summaryCards').innerHTML = [
+    { label: L.metricGrossRevenue, value: fmt(calc.totalRevenue), sub: L.metricGrossSub(calc.totalBillableDays, calc.months) },
+    { label: L.metricTaxes, value: fmt(calc.totalTaxes), sub: L.metricTaxesSub(((calc.totalTaxes / calc.totalRevenue) * 100 || 0).toFixed(1)) },
+    { label: L.metricNetTotal, value: fmt(calc.netTotal), sub: L.metricNetTotalSub },
+    { label: L.metricAvgMonthly, value: fmt(calc.avgMonthlyNet), sub: L.metricAvgMonthlySub },
+  ].map((c, i) => `
+    <div class="metric ${i === 3 ? 'hi' : ''}">
+      <div class="metric-label">${c.label}</div>
+      <div class="metric-value">${c.value}</div>
+      <div class="metric-sub">${c.sub}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('taxTable').innerHTML = `
+    <tbody>
+      <tr><td>${L.taxRowGross}</td><td>${fmt(calc.totalRevenue)}</td></tr>
+      <tr><td>${L.taxRowTaxable(calc.coeff)}</td><td>${fmt(calc.taxableIncome)}</td></tr>
+      <tr><td>${L.taxRowInps(calc.inpsRate)}</td><td>− ${fmt(calc.inps)}</td></tr>
+      <tr><td>${L.taxRowSubstitute(calc.under5y ? '5' : '15')}</td><td>− ${fmt(calc.substituteTax)}</td></tr>
+      <tr style="font-weight:700;"><td>${L.taxRowNetAfterTax}</td><td>${fmt(calc.netTotal)}</td></tr>
+      <tr><td>${L.taxRowTravel}</td><td>− ${fmt(calc.totalTravelCost)}</td></tr>
+      <tr style="font-weight:700; border-top:2px solid #e6e0d2;"><td>${L.taxRowNetCash}</td><td>${fmt(calc.netCashAfterTravel)}</td></tr>
+    </tbody>
+  `;
+
+  // Historical method: current-year balance in June, next-year advance (100% of current taxes)
+  // split 40% in June and 60% in November.
+  const juneBalance = calc.totalTaxes;
+  const juneAdvance = calc.totalTaxes * 0.40;
+  const juneTotal = juneBalance + juneAdvance;
+  const novemberAdvance = calc.totalTaxes * 0.60;
+  const totalYear = juneTotal + novemberAdvance;
+
+  document.getElementById('deadlinesTable').innerHTML = `
+    <tbody>
+      <tr><td>${L.deadlineJuneRow}</td><td>${fmt(juneBalance)}</td></tr>
+      <tr><td>${L.deadlineJuneAdvanceRow}</td><td>${fmt(juneAdvance)}</td></tr>
+      <tr style="font-weight:700; border-top:2px solid #e6e0d2;"><td>${L.deadlineJuneTotalRow}</td><td>${fmt(juneTotal)}</td></tr>
+      <tr><td>${L.deadlineNovemberRow}</td><td>${fmt(novemberAdvance)}</td></tr>
+      <tr style="font-weight:700; border-top:2px solid #e6e0d2;"><td>${L.deadlineTotalYearRow}</td><td>${fmt(totalYear)}</td></tr>
+    </tbody>
+  `;
+
+  document.getElementById('expensesTotal').textContent = fmt(calc.monthlyExpensesTotal);
+
+  document.getElementById('monthlyBody').innerHTML = calc.monthlyBreakdown.map((m) => `
+    <tr>
+      <td>${m.label}</td>
+      <td class="sans" style="font-size: 11.5px; color: #6b6250; text-align:left;">${m.activeProjectNames.join(' / ') || '—'}</td>
+      <td>${m.billableDays}</td>
+      <td>${fmt(m.revenue)}</td>
+      <td>− ${fmt(m.travelCost)}</td>
+      <td>${fmt(m.netRevenue)}</td>
+      <td>${fmt(m.netAfterTravel)}</td>
+      <td>${m.occasionalForMonth > 0 ? '− ' + fmt(m.occasionalForMonth) : '-'}</td>
+      <td style="font-weight:700; color:${m.netAfterExpenses >= 0 ? '#1c1a17' : '#a03d3d'};">${fmt(m.netAfterExpenses)}</td>
+    </tr>
+  `).join('') + monthlyTotalsRow(calc.monthlyBreakdown);
+
+  renderRevenueByYear(calc);
+}
+
+function renderRevenueByYear(calc) {
+  const byYear = {};
+  calc.monthlyBreakdown.forEach((m) => {
+    const year = m.key.split('-')[0];
+    if (!byYear[year]) byYear[year] = { revenue: 0, taxes: 0, net: 0, months: 0, monthsCount: 0 };
+    byYear[year].revenue += m.revenue;
+    byYear[year].net += m.netAfterExpenses;
+    byYear[year].monthsCount += 1;
+  });
+
+  const avgTaxRate = calc.totalRevenue > 0 ? calc.totalTaxes / calc.totalRevenue : 0;
+  const years = Object.keys(byYear).sort();
+  const L = I18N[currentLang];
+  const container = document.getElementById('revenueByYearCards');
+
+  if (years.length === 0) {
+    container.innerHTML = `
+      <div class="metric" style="grid-column: 1 / -1;">
+        <div class="metric-sub">${L.noProjectsYet}</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = years.map((y) => {
+    const data = byYear[y];
+    const taxes = data.revenue * avgTaxRate;
+    const avgMonthlyNet = data.monthsCount > 0 ? data.net / data.monthsCount : 0;
+    return `
+      <div class="metric">
+        <div class="metric-label">${y}</div>
+        <div class="metric-value">${fmt(data.revenue)}</div>
+        <div class="metric-sub">${L.taxRowGross}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">${y}</div>
+        <div class="metric-value">${fmt(taxes)}</div>
+        <div class="metric-sub">${L.metricTaxes}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">${y}</div>
+        <div class="metric-value">${fmt(data.net)}</div>
+        <div class="metric-sub">${L.metricNetTotal}</div>
+      </div>
+      <div class="metric hi">
+        <div class="metric-label">${y}</div>
+        <div class="metric-value">${fmt(avgMonthlyNet)}</div>
+        <div class="metric-sub">${L.metricAvgMonthly}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function monthlyTotalsRow(rows) {
+  const sum = (key) => rows.reduce((s, m) => s + m[key], 0);
+  const totalBillableDays = sum('billableDays');
+  const totalRevenue = sum('revenue');
+  const totalTravelCost = sum('travelCost');
+  const totalNetRevenue = sum('netRevenue');
+  const totalNetAfterTravel = sum('netAfterTravel');
+  const totalOccasional = sum('occasionalForMonth');
+  const totalNetAfterExpenses = sum('netAfterExpenses');
+  return `
+    <tr style="font-weight:700; border-top:2px solid #e6e0d2;">
+      <td>${t('monthlyTotalLabel')}</td>
+      <td></td>
+      <td>${totalBillableDays}</td>
+      <td>${fmt(totalRevenue)}</td>
+      <td>− ${fmt(totalTravelCost)}</td>
+      <td>${fmt(totalNetRevenue)}</td>
+      <td>${fmt(totalNetAfterTravel)}</td>
+      <td>${totalOccasional > 0 ? '− ' + fmt(totalOccasional) : '-'}</td>
+      <td style="color:${totalNetAfterExpenses >= 0 ? '#1c1a17' : '#a03d3d'};">${fmt(totalNetAfterExpenses)}</td>
+    </tr>
+  `;
+}
+
+function renderExpensesList() {
+  document.getElementById('expensesList').innerHTML = fixedExpenses.map((e) => `
+    <div class="expense-row" data-id="${e.id}">
+      <input type="text" class="exp-label" value="${e.label}">
+      <input type="number" class="exp-amount" value="${e.amount}">
+      <button class="btn exp-remove" type="button">${currentLang === 'it' ? 'Rimuovi' : 'Remove'}</button>
+    </div>
+  `).join('');
+  attachExpenseListeners();
+}
+
+function attachExpenseListeners() {
+  document.querySelectorAll('.expense-row').forEach((row) => {
+    const id = Number(row.dataset.id);
+    row.querySelector('.exp-label').addEventListener('input', (e) => {
+      const exp = fixedExpenses.find((x) => x.id === id);
+      if (exp) exp.label = e.target.value;
+      recalcOnly();
+    });
+    row.querySelector('.exp-amount').addEventListener('input', (e) => {
+      const exp = fixedExpenses.find((x) => x.id === id);
+      if (exp) exp.amount = Number(e.target.value);
+      recalcOnly();
+    });
+    row.querySelector('.exp-remove').addEventListener('click', () => {
+      fixedExpenses = fixedExpenses.filter((x) => x.id !== id);
+      renderExpensesList();
+      recalcOnly();
+    });
+  });
+}
+
+function renderOccasionalList() {
+  const calc = calculate();
+  const monthOptions = calc.monthKeys.map((k) => `<option value="${k}">${monthLabel(k)}</option>`).join('');
+
+  if (occasionalExpenses.length === 0) {
+    document.getElementById('occasionalList').innerHTML = `
+      <p class="sans" style="font-size: 13px; color: #a39a86; margin: 0;">${t('occasionalEmpty')}</p>
+    `;
+    return;
+  }
+
+  document.getElementById('occasionalList').innerHTML = occasionalExpenses.map((o) => `
+    <div class="occasional-row" data-id="${o.id}">
+      <input type="text" class="occ-label" value="${o.label}">
+      <select class="occ-month">${monthOptions}</select>
+      <input type="number" class="occ-amount" value="${o.amount}">
+      <button class="btn occ-remove" type="button">${currentLang === 'it' ? 'Rimuovi' : 'Remove'}</button>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.occasional-row').forEach((row) => {
+    const id = Number(row.dataset.id);
+    const occ = occasionalExpenses.find((x) => x.id === id);
+    const monthSelect = row.querySelector('.occ-month');
+    if (occ) monthSelect.value = occ.month;
+
+    row.querySelector('.occ-label').addEventListener('input', (e) => {
+      if (occ) occ.label = e.target.value;
+      recalcOnly();
+    });
+    monthSelect.addEventListener('change', (e) => {
+      if (occ) occ.month = e.target.value;
+      recalcOnly();
+    });
+    row.querySelector('.occ-amount').addEventListener('input', (e) => {
+      if (occ) occ.amount = Number(e.target.value);
+      recalcOnly();
+    });
+    row.querySelector('.occ-remove').addEventListener('click', () => {
+      occasionalExpenses = occasionalExpenses.filter((x) => x.id !== id);
+      renderOccasionalList();
+      recalcOnly();
+    });
+  });
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  document.getElementById('langIt').classList.toggle('active', lang === 'it');
+  document.getElementById('langEn').classList.toggle('active', lang === 'en');
+  applyStaticTranslations();
+  renderProjects();
+  renderExpensesList();
+  renderOccasionalList();
+  recalcOnly();
+}
+
+document.getElementById('langIt').addEventListener('click', () => setLanguage('it'));
+document.getElementById('langEn').addEventListener('click', () => setLanguage('en'));
+
+document.getElementById('addProjectBtn').addEventListener('click', () => {
+  projects.push({
+    id: Date.now(),
+    name: '',
+    erp: '',
+    rate: null,
+    startDate: '',
+    endDate: '',
+    onSiteDays: [],
+    city: '',
+    travelCostPerDay: null,
+  });
+  renderProjects();
+  renderOccasionalList();
+  recalcOnly();
+});
+
+['coeff', 'inps', 'under5y'].forEach((id) => {
+  document.getElementById(id).addEventListener('input', recalcOnly);
+  document.getElementById(id).addEventListener('change', recalcOnly);
+});
+
+document.getElementById('addExpenseBtn').addEventListener('click', () => {
+  fixedExpenses.push({ id: Date.now(), label: currentLang === 'it' ? 'Nuova voce' : 'New item', amount: 0 });
+  renderExpensesList();
+  recalcOnly();
+});
+
+document.getElementById('addOccasionalBtn').addEventListener('click', () => {
+  const calc = calculate();
+  const defaultMonth = calc.monthKeys[0] || '';
+  occasionalExpenses.push({ id: Date.now(), label: currentLang === 'it' ? 'Nuova spesa' : 'New expense', month: defaultMonth, amount: 0 });
+  renderOccasionalList();
+  recalcOnly();
+});
+
+applyStaticTranslations();
+renderProjects();
+renderExpensesList();
+renderOccasionalList();
+recalcOnly();
+</script>
+</body>
+</html>
